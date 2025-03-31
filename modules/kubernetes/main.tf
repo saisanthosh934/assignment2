@@ -206,69 +206,69 @@ resource "kubernetes_config_map" "aws_auth" {
   depends_on = [aws_eks_cluster.cluster]
 }
 
-# # CoreDNS Add-on
-# resource "aws_eks_addon" "coredns" {
-#   cluster_name      = aws_eks_cluster.cluster.name
-#   addon_name        = "coredns"
-#   addon_version     = "v1.10.1-eksbuild.18"
-#   depends_on        = [aws_eks_node_group.nodes]
-# }
+# CoreDNS Add-on
+resource "aws_eks_addon" "coredns" {
+  cluster_name      = aws_eks_cluster.cluster.name
+  addon_name        = "coredns"
+  addon_version     = "v1.10.1-eksbuild.18"
+  depends_on        = [aws_eks_node_group.nodes]
+}
 
-# # kube-proxy Add-on
-# resource "aws_eks_addon" "kube_proxy" {
-#   cluster_name      = aws_eks_cluster.cluster.name
-#   addon_name        = "kube-proxy"
-#   addon_version     = "v1.28.15-eksbuild.9"
-#   depends_on        = [aws_eks_node_group.nodes]
-# }
+# kube-proxy Add-on
+resource "aws_eks_addon" "kube_proxy" {
+  cluster_name      = aws_eks_cluster.cluster.name
+  addon_name        = "kube-proxy"
+  addon_version     = "v1.28.15-eksbuild.9"
+  depends_on        = [aws_eks_node_group.nodes]
+}
 
-# # VPC CNI Add-on
-# resource "aws_eks_addon" "vpc_cni" {
-#   cluster_name      = aws_eks_cluster.cluster.name
-#   addon_name        = "vpc-cni"
-#   addon_version     = "v1.19.2-eksbuild.5"
-#   depends_on        = [aws_eks_node_group.nodes]
-# }
+# VPC CNI Add-on
+resource "aws_eks_addon" "vpc_cni" {
+  cluster_name      = aws_eks_cluster.cluster.name
+  addon_name        = "vpc-cni"
+  addon_version     = "v1.19.2-eksbuild.5"
+  depends_on        = [aws_eks_node_group.nodes]
+}
 
-# # EBS CSI Driver Add-on
-# resource "aws_eks_addon" "ebs_csi_driver" {
-#   cluster_name             = aws_eks_cluster.cluster.name
-#   addon_name               = "aws-ebs-csi-driver"
-#   addon_version            = "v1.28.0-eksbuild.1"
-#   service_account_role_arn = aws_iam_role.ebs_csi_driver.arn
-#   depends_on               = [aws_eks_node_group.nodes]
-# }
+# EBS CSI Driver Add-on
+resource "aws_eks_addon" "ebs_csi_driver" {
+  cluster_name             = aws_eks_cluster.cluster.name
+  addon_name               = "aws-ebs-csi-driver"
+  addon_version            = "v1.28.0-eksbuild.1"
+  service_account_role_arn = aws_iam_role.ebs_csi_driver.arn
+  depends_on               = [aws_eks_node_group.nodes]
+}
 
-# # IAM Role for EBS CSI Driver
-# resource "aws_iam_role" "ebs_csi_driver" {
-#   name = "${var.cluster_name}-ebs-csi-driver-role"
+# IAM Role for EBS CSI Driver
+resource "aws_iam_role" "ebs_csi_driver" {
+  name = "${var.cluster_name}-ebs-csi-driver-role"
 
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Action = "sts:AssumeRoleWithWebIdentity"
-#         Effect = "Allow"
-#         Principal = {
-#           Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${replace(aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}"
-#         }
-#         Condition = {
-#           StringEquals = {
-#             "${replace(aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:aud" : "sts.amazonaws.com",
-#             "${replace(aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:sub" : "system:serviceaccount:kube-system:ebs-csi-controller-sa"
-#           }
-#         }
-#       }
-#     ]
-#   })
-# }
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${replace(aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}"
+        }
+        Condition = {
+          StringEquals = {
+            "${replace(aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:aud" : "sts.amazonaws.com",
+            "${replace(aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:sub" : "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+          }
+        }
+      }
+    ]
+  })
+}
 
-# resource "aws_iam_role_policy_attachment" "ebs_csi_driver" {
-#   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-#   role       = aws_iam_role.ebs_csi_driver.name
-# }
+resource "aws_iam_role_policy_attachment" "ebs_csi_driver" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+  role       = aws_iam_role.ebs_csi_driver.name
+}
 
-# data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current" {}
 
 
 data "aws_eks_cluster_auth" "cluster" {
