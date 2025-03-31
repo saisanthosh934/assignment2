@@ -1,0 +1,7 @@
+region            = "ap-south-1"
+key_name          = "deloitte"
+allowed_ssh_ip    = "10.0.0.0/32"
+bucket_name       = "santhosh-deloitte-210895"
+cluster_name      = "production-cluster"
+node_type         = "t2.large"
+instance_type     = "t2.large"
