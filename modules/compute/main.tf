@@ -30,7 +30,8 @@ resource "aws_instance" "ubuntu" {
   }
 
   tags = {
-    Name = "ubuntu-instance"
+    Name    = "ubuntu-instance"
+    purpose = "Assignment2"
   }
 
   lifecycle {
